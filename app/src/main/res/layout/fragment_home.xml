@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.HomeFragment">
+
+
+
+    <TextView
+        android:id="@+id/t2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Click on the Select button below and select your image file"
+        android:textColor="#000000"
+        android:textStyle="italic"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        android:layout_above="@id/btnOpenFile" />
+
+
+    <Button
+        android:id="@+id/btnOpenFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/btn_bg"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:text="Select Audio"/>
+
+    <LinearLayout
+        android:id="@+id/ly1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/btnOpenFile">
+        <Button
+            android:id="@+id/btnLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Play Music"
+            android:layout_marginHorizontal="5dp"
+            />
+
+        <Button
+            android:id="@+id/btnRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Play Music"
+            android:layout_marginHorizontal="5dp"
+            />
+    </LinearLayout>
+<SeekBar
+    android:id="@+id/seekBar_Volume"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="20dp"
+    android:max="100"
+    android:min="0"
+    android:progressTint="#ff0000"
+    android:progressBackgroundTintMode="src_over"
+    android:thumbTint="#ff0000"
+    android:progressBackgroundTint="#ff0000"
+    android:layout_below="@id/ly1"/>
+
+    <LinearLayout
+        android:id="@+id/ly2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/seekBar_Volume"
+        >
+
+    <Button
+        android:id="@+id/btnConvertToMono"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:text="Convert To Mono"/>
+
+    <Button
+        android:id="@+id/btnConvertToStereo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:text="Convert To Stereo"/>
+
+</LinearLayout>
+
+</RelativeLayout>
