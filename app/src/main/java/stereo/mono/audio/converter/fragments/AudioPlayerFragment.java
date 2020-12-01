@@ -1,6 +1,7 @@
 package stereo.mono.audio.converter.fragments;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaExtractor;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -20,10 +22,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.arthenica.mobileffmpeg.Config;
 import com.arthenica.mobileffmpeg.ExecuteCallback;
 import com.arthenica.mobileffmpeg.FFmpeg;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.roger.catloadinglibrary.CatLoadingView;
 
 import java.io.File;
@@ -47,7 +52,7 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
     MediaPlayer mediaPlayer2;
     MediaPlayer mediaPlayer = new MediaPlayer();
     boolean wasPlaying = false;
-    CustomProgress customProgress = CustomProgress.getInstance();
+    private InterstitialAd mInterstitialAd;
 
 
     @Override
@@ -63,10 +68,20 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
             convertToMono(getSelectedAudioPath());
             playSong(getSelectedAudioPath());
         }
+        initAds();
         return view;
     }
 
+    private void initAds() {
+        mInterstitialAd = new InterstitialAd(getActivity());
+        mInterstitialAd.setAdUnitId("ca-app-pub-9562015878942760/3248290340");
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+    }
+
     private void initListeners() {
+        String songName = getSelectedAudioPath().substring(getSelectedAudioPath().lastIndexOf("/")+1);
+        binding.tvSongName.setText(songName);
+
         binding.fab.setOnClickListener(v-> {
             playPauseMusic();
         });
@@ -110,7 +125,7 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
 
                 if (progress > 0 && mediaPlayer != null && !mediaPlayer.isPlaying()) {
                     //clearMediaPlayer();
-                    binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
+                    binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_play));
                  //   binding.seekBarPosition.setProgress(0);
                 }
 
@@ -126,8 +141,38 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
             }
         });
 
+        binding.btnconvertStereoToMono.setOnClickListener(v-> {
+        showDownloadCompleteDialog(getMonoAudioPath());
+        });
 
 
+    }
+
+    private void showDownloadCompleteDialog(String path) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Stereo TO Mono Converter")
+                .setMessage("Audio FIle Converted Successfully and saved at "+ path)
+
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Continue with delete operation
+                        dialog.dismiss();
+                        showInterstitialAd();
+                    }
+                })
+
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .show();
+    }
+
+    private void showInterstitialAd() {
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            Log.e("TAG", "The interstitial wasn't loaded yet.");
+        }
     }
 
     private void playAudioInMonoOrStereo(boolean isChecked) {
@@ -141,10 +186,10 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
     private void playPauseMusic() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-            binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
+            binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_play));
         } else if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
             mediaPlayer.start();
-            binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
+            binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_pause));
             new Thread(this).start();
         }
     }
@@ -155,14 +200,14 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
             if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 clearMediaPlayer();
                 binding.seekBarPosition.setProgress(0);
-                binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
+                binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_play));
             }
 
                 if (mediaPlayer == null) {
                     mediaPlayer = new MediaPlayer();
                 }
 
-                binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
+                binding.fab.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_pause));
 
 
                 mediaPlayer.setDataSource(getActivity(), Uri.parse(audioPath));
@@ -227,6 +272,7 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
         int sampleRate = mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE);
         int channelCount = mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
 
+        Log.e(TAG, "getMediaInfo: "+ getSelectedAudioPath() );
         binding.tvFormat.setText(getSelectedAudioPath().substring(getSelectedAudioPath().lastIndexOf("."), getSelectedAudioPath().length()));
         binding.tvSamplingRate.setText("" + sampleRate);
         binding.tvBitrate.setText("" + bitRate);
@@ -294,7 +340,8 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
         }
 
         String outputDir = outputDirectory.getAbsolutePath();
-        String ffmpegString = getMonoLeftOnlyFFMPEGString(originalPath, outputDir);
+        String outputPath = outputDir + "/StereoToMono_left_" + new SimpleDateFormat("yyyyMM_dd-HHmmss").format(new Date()) + ".mp3";
+        String ffmpegString = getMonoLeftOnlyFFMPEGString(originalPath, outputPath);
         Log.e(TAG, "convertToMono: " + originalPath);
 
         long executionId = FFmpeg.executeAsync(ffmpegString, new ExecuteCallback() {
@@ -303,36 +350,45 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
                 mView.dismiss();
                 if (returnCode == RETURN_CODE_SUCCESS) {
                     Log.e(Config.TAG, "Async command execution completed successfully.");
+                    showDownloadCompleteDialog(outputPath);
                 } else if (returnCode == RETURN_CODE_CANCEL) {
                     Log.e(Config.TAG, "Async command execution cancelled by user.");
                 } else {
                     Log.e(Config.TAG, String.format("Async command execution failed with rc=%d.", returnCode));
                     Config.printLastCommandOutput(Log.INFO);
+                    Toast.makeText(getActivity(), "Error: Please Try Again!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
     private void convertToRightOnly(String originalPath) {
+        CatLoadingView mView  = new CatLoadingView();
+        mView.show(getFragmentManager(), "");
         File outputDirectory = new File(Environment.getExternalStoragePublicDirectory("") + "/StereoToMono/");
         if (!outputDirectory.exists()) {
             outputDirectory.mkdirs();
         }
 
         String outputDir = outputDirectory.getAbsolutePath();
-        String ffmpegString = getMonoRightOnlyFFMPEGString(originalPath, outputDir);
+        String outputPath = outputDir + "/StereoToMono_right_" + new SimpleDateFormat("yyyyMM_dd-HHmmss").format(new Date()) + ".mp3";
+        String ffmpegString = getMonoRightOnlyFFMPEGString(originalPath, outputPath);
+
         Log.e(TAG, "convertToMono: " + originalPath);
 
         long executionId = FFmpeg.executeAsync(ffmpegString, new ExecuteCallback() {
             @Override
             public void apply(final long executionId, final int returnCode) {
+                mView.dismiss();
                 if (returnCode == RETURN_CODE_SUCCESS) {
                     Log.e(Config.TAG, "Async command execution completed successfully.");
+                    showDownloadCompleteDialog(outputPath);
                 } else if (returnCode == RETURN_CODE_CANCEL) {
                     Log.e(Config.TAG, "Async command execution cancelled by user.");
                 } else {
                     Log.e(Config.TAG, String.format("Async command execution failed with rc=%d.", returnCode));
                     Config.printLastCommandOutput(Log.INFO);
+                    Toast.makeText(getActivity(), "Error: Please Try Again!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -343,12 +399,12 @@ public class AudioPlayerFragment extends Fragment implements Runnable{
         return String.format("-i  '%s' -ac 1 '%s'", originalPath, outputDir + "/StereoToMono_" + new SimpleDateFormat("yyyyMM_dd-HHmmss").format(new Date()) + ".mp3");
     }
 
-    private String getMonoLeftOnlyFFMPEGString(String originalPath, String outputDir) {
-        return String.format("-i  '%s' -filter_complex \"[0:a]channelsplit=channel_layout=stereo:channels=FL[left]\" -map \"[left]\" '%s'", originalPath, outputDir + "/StereoToMono_left_" + new SimpleDateFormat("yyyyMM_dd-HHmmss").format(new Date()) + ".mp3");
+    private String getMonoLeftOnlyFFMPEGString(String originalPath, String outputPath) {
+        return String.format("-i  '%s' -filter_complex \"[0:a]channelsplit=channel_layout=stereo:channels=FL[left]\" -map \"[left]\" '%s'", originalPath, outputPath);
     }
 
-    private String getMonoRightOnlyFFMPEGString(String originalPath, String outputDir) {
-        return String.format("-i  '%s' -filter_complex \"[0:a]channelsplit=channel_layout=stereo:channels=FR[right]\" -map \"[right]\" '%s'", originalPath, outputDir + "/StereoToMono_right_" + new SimpleDateFormat("yyyyMM_dd-HHmmss").format(new Date()) + ".mp3");
+    private String getMonoRightOnlyFFMPEGString(String originalPath, String outputPath) {
+        return String.format("-i  '%s' -filter_complex \"[0:a]channelsplit=channel_layout=stereo:channels=FR[right]\" -map \"[right]\" '%s'", originalPath, outputPath);
     }
 
     private boolean checkPermission() {

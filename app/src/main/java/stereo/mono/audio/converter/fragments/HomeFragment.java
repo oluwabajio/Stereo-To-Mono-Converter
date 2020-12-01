@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.arthenica.mobileffmpeg.Config;
 import com.arthenica.mobileffmpeg.ExecuteCallback;
@@ -62,6 +63,7 @@ public class HomeFragment extends Fragment {
    FragmentHomeBinding binding;
     AudioPicker audioPicker;
     private static final String TAG = "HomeFragment";
+    private String selectedAudioPath = "";
 
     MediaPlayer mp;
 
@@ -91,11 +93,9 @@ public class HomeFragment extends Fragment {
             if (checkPermission()) {
                 pickAudioFile();
             } else {
-
+                Toast.makeText(getActivity(), "Kindly Accept Permissions", Toast.LENGTH_SHORT).show();
             }
         });
-
-
 
 
         binding.btnLeft.setOnClickListener(v -> {
@@ -127,7 +127,11 @@ public class HomeFragment extends Fragment {
         });
 
         binding.btnConvertToMono.setOnClickListener(v->{
-       //     convertStereoToMono();
+            if (selectedAudioPath != "") {
+                convertToMono(selectedAudioPath);
+            } else {
+                Toast.makeText(getActivity(), "Kindly Select an Audio File First", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -136,11 +140,10 @@ public class HomeFragment extends Fragment {
         audioPicker.setAudioPickerCallback(new AudioPickerCallback() {
             @Override
             public void onAudiosChosen(List<ChosenAudio> files) {
-                // Display Files
+
            //     decodeMp3WithJlayer(files.get(0).getOriginalPath());
-                // decodeMp3WithFFMPEG(files.get(0).getOriginalPath());
-            //    playSoundPlay(files.get(0).getOriginalPath());
-                convertToMono(files.get(0).getOriginalPath());
+                selectedAudioPath = files.get(0).getOriginalPath();
+                playSoundPlay(files.get(0).getOriginalPath());
             }
 
             @Override
@@ -159,17 +162,6 @@ public class HomeFragment extends Fragment {
         if (!outputDirectory.exists()) {
             outputDirectory.mkdirs();
         }
-
-
-        File file = new File(outputDirectory.getAbsolutePath()+"/dsf.mp3");
-//        if (!file.exists()) {
-//            try {
-//                file.createNewFile();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                Log.e(TAG, "convertToMono: cannot create new file" );
-//            }
-//        }
 
         String asd =  String.format("-i  '%s' -ac 1 '%s'", originalPath, outputDirectory.getAbsolutePath()+"/dgsf.mp3");
         Log.e(TAG, "convertToMono: "+originalPath );

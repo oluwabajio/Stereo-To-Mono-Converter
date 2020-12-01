@@ -12,6 +12,7 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,7 +54,8 @@ dependencies {
     implementation 'com.arthenica:mobile-ffmpeg-full:4.4.LTS'
     implementation 'com.kbeanie:multipicker:1.6@aar'
     implementation 'com.roger.catloadinglibrary:catloadinglibrary:1.0.5'
-
+    implementation 'com.google.android.gms:play-services-ads:19.5.0'
+    implementation 'com.android.support:multidex:1.0.3'
     implementation group: 'fr.delthas', name: 'javamp3', version: '1.0.1'
 
 }

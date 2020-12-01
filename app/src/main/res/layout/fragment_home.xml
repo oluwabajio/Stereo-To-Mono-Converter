@@ -6,90 +6,129 @@
     tools:context=".fragments.HomeFragment">
 
 
-
     <TextView
         android:id="@+id/t2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@id/btnOpenFile"
         android:layout_centerHorizontal="true"
-        android:text="Click on the Select button below and select your image file"
-        android:textColor="#000000"
-        android:textStyle="italic"
-        android:layout_marginBottom="20dp"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:text="Click on the Select button below and select your audio file"
         android:textAlignment="center"
+        android:textColor="#000000"
         android:textSize="15sp"
-        android:layout_above="@id/btnOpenFile" />
+        android:textStyle="italic" />
 
 
     <Button
         android:id="@+id/btnOpenFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:background="@drawable/btn_bg"
+        android:text="Select Audio"
         android:textColor="#ffffff"
-        android:textSize="20sp"
-        android:text="Select Audio"/>
+        android:textSize="20sp" />
 
     <LinearLayout
-        android:id="@+id/ly1"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/btnOpenFile">
-        <Button
-            android:id="@+id/btnLeft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Play Music"
-            android:layout_marginHorizontal="5dp"
-            />
+        android:layout_below="@id/btnOpenFile"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnRight"
+        <LinearLayout
+            android:id="@+id/ly1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play Music"
-            android:layout_marginHorizontal="5dp"
-            />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:text="Play Left Ear Only" />
+
+            <Button
+                android:id="@+id/btnRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:text="Play Right Ear Only" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ly3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/ly1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="LEFT / RIGHT BALANCE"/>
+
+            <SeekBar
+                android:id="@+id/seekBar_Volume"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:max="100"
+                android:min="0"
+                android:progress="50"
+                android:progressBackgroundTint="#ff0000"
+                android:progressBackgroundTintMode="src_over"
+                android:progressTint="#ff0000"
+                android:thumbTint="#ff0000" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LEFT"
+                    android:layout_alignParentStart="true"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RIGHT"
+                    android:layout_alignParentEnd="true"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ly2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ly3"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnConvertToMono"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15dp"
+                android:text="Convert To Mono" />
+
+            <Button
+                android:id="@+id/btnConvertToStereo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15dp"
+                android:text="Convert To Stereo" />
+
+        </LinearLayout>
+
     </LinearLayout>
-<SeekBar
-    android:id="@+id/seekBar_Volume"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="20dp"
-    android:max="100"
-    android:min="0"
-    android:progressTint="#ff0000"
-    android:progressBackgroundTintMode="src_over"
-    android:thumbTint="#ff0000"
-    android:progressBackgroundTint="#ff0000"
-    android:layout_below="@id/ly1"/>
 
-    <LinearLayout
-        android:id="@+id/ly2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/seekBar_Volume"
-        >
 
-    <Button
-        android:id="@+id/btnConvertToMono"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="15dp"
-        android:text="Convert To Mono"/>
-
-    <Button
-        android:id="@+id/btnConvertToStereo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="15dp"
-        android:text="Convert To Stereo"/>
-
-</LinearLayout>
 
 </RelativeLayout>

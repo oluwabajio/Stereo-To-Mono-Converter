@@ -16,14 +16,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.arthenica.mobileffmpeg.Config;
 import com.arthenica.mobileffmpeg.ExecuteCallback;
 import com.arthenica.mobileffmpeg.FFmpeg;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.kbeanie.multipicker.api.AudioPicker;
 import com.kbeanie.multipicker.api.Picker;
 import com.kbeanie.multipicker.api.callbacks.AudioPickerCallback;
 import com.kbeanie.multipicker.api.entity.ChosenAudio;
+import com.roger.catloadinglibrary.CatLoadingView;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -46,7 +51,8 @@ public class MainFragment extends Fragment {
     AudioPicker audioPicker;
     private static final int PERMISSION_REQUEST_CODE = 103;
     private static final String TAG = "MainFragment";
-    CustomProgress customProgress = CustomProgress.getInstance();
+    CatLoadingView mView  = new CatLoadingView();
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,8 +64,10 @@ public class MainFragment extends Fragment {
         initListeners();
 
 
+
        return view;
     }
+
 
     private void initListeners() {
         binding.btnSelectAudio.setOnClickListener(v-> {
@@ -77,9 +85,8 @@ public class MainFragment extends Fragment {
         audioPicker.setAudioPickerCallback(new AudioPickerCallback() {
             @Override
             public void onAudiosChosen(List<ChosenAudio> files) {
-                customProgress.showProgress(getActivity(), "Loading", false);
+                mView.show(getFragmentManager(), "");
                 convertToMono(files.get(0).getOriginalPath());
-
                     }
             @Override
             public void onError(String message) {
@@ -92,8 +99,6 @@ public class MainFragment extends Fragment {
 
 
 
-    private void selectAudioFile() {
-    }
 
     private boolean checkPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -124,18 +129,20 @@ public class MainFragment extends Fragment {
         long executionId = FFmpeg.executeAsync(ffmpegString, new ExecuteCallback() {
             @Override
             public void apply(final long executionId, final int returnCode) {
+                mView.dismiss();
                 if (returnCode == RETURN_CODE_SUCCESS) {
                     Log.e(Config.TAG, "Async command execution completed successfully.");
                     Bundle bundle = new Bundle();
                     bundle.putString("url", originalPath);
                     bundle.putString("mono_url", outputFile);
                     Navigation.findNavController(getView()).navigate(R.id.action_mainFragment_to_audioPlayerFragment, bundle);
-                        customProgress.hideProgress();
+
                 } else if (returnCode == RETURN_CODE_CANCEL) {
                     Log.e(Config.TAG, "Async command execution cancelled by user.");
                 } else {
                     Log.e(Config.TAG, String.format("Async command execution failed with rc=%d.", returnCode));
                     Config.printLastCommandOutput(Log.INFO);
+                    Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
                 }
             }
         });
